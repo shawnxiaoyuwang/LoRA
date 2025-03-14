@@ -232,8 +232,10 @@ def main():
     else:
         model_args, data_args, training_args = parser.parse_args_into_dataclasses()
 
-    torch.use_deterministic_algorithms(training_args.use_deterministic_algorithms)
-    logger.info("use_deterministic_algorithms: " + str(torch.are_deterministic_algorithms_enabled()))
+    # torch.use_deterministic_algorithms(training_args.use_deterministic_algorithms)
+    # logger.info("use_deterministic_algorithms: " + str(torch.are_deterministic_algorithms_enabled()))
+    if hasattr(training_args, "use_deterministic_algorithms"):
+        torch.use_deterministic_algorithms(training_args.use_deterministic_algorithms)
 
     # Detecting last checkpoint.
     last_checkpoint = None
@@ -288,6 +290,7 @@ def main():
     if data_args.task_name is not None:
         # Downloading and loading a dataset from the hub.
         datasets = load_dataset("glue", data_args.task_name)
+        print(f"Loading GLUE task: {data_args.task_name}")
     else:
         # Loading a dataset from your local files.
         # CSV/JSON training and evaluation files are needed.
@@ -349,7 +352,8 @@ def main():
         cache_dir=model_args.cache_dir,
         revision=model_args.model_revision,
         use_auth_token=True if model_args.use_auth_token else None,
-        cls_dropout=training_args.cls_dropout,
+        cls_dropout=0.1,
+        # cls_dropout=training_args.cls_dropout,
         apply_lora=model_args.apply_lora,
         lora_alpha=model_args.lora_alpha,
         lora_r=model_args.lora_r,
